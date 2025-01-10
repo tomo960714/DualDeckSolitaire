@@ -132,7 +132,7 @@ class SetClass:
     def _is_valid_posion(position:int) -> bool:
         """Internal method to check if the position is valid."""
         try:
-            if not (1 <= position <= 8):
+            if (1 <= position <= 8):
                 return True
         except ValueError:
             return False
