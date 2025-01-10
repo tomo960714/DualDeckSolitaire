@@ -2,7 +2,6 @@ from typing import List
 
 from enum import Enum
 
-##{"Hearts", "Diamonds", "Clubs", "Spades"}
 class CardSuit(Enum):
     HEARTS = "H"
     DIAMONDS = "D"
@@ -27,7 +26,7 @@ class CardClass:
     def __init__(self,suit:str,rank:int,AB_deck:str):
         
         if not self._is_valid_card_suit(suit):
-            raise ValueError(f"Invalid card rank: {rank}. Must be between 1 (Ace) and 13 (King).")
+            raise ValueError(f"Invalid card suit: {suit}. Must be either Hearths | Diamonds | Clubs | Spades).")
         if not self._is_valid_card_number(rank):
             raise ValueError(f"Invalid card rank: {rank}. Must be between 1 (Ace) and 13 (King).")
         if not self._is_deck_valid(AB_deck):
@@ -97,6 +96,7 @@ class StackClass:
         self.cards.clear()
 
 class DeckClass:
+
     def __init__(self):
         self.cards: List[CardClass] = []
 
@@ -107,5 +107,100 @@ class DeckClass:
         self.cards.append(new_card)
     
     def show_all_cards(self):
+
         print("Cards in Deck:")
         print(*[card.name for card in self.cards], sep=", ")
+
+class SetClass:
+    def __init__(self,position:int, suit:str, direction:str):
+        if not self._is_valid_posion(position):
+            raise ValueError(f"Invalid set position at {position}. Must be betwen 1 and 8")
+        
+        if not self._is_valid_suit(suit):
+            raise ValueError(f"Invalid card suit: {suit}. Must be either Hearths | Diamonds | Clubs | Spades).")
+        
+        if not self._is_valid_direction(direction):
+            raise ValueError(f"Invalid direction: {direction}. Must be either asc or desc.")
+
+
+        self.position = position
+        self.suit = suit
+        self.direction = direction
+        self.topCard: CardClass = None
+    
+    @staticmethod
+    def _is_valid_posion(position:int) -> bool:
+        """Internal method to check if the position is valid."""
+        try:
+            if not (1 <= position <= 8):
+                return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def _is_valid_suit(value:str) -> bool:
+        """Internal method to check if a suit is valid."""
+        try:
+            CardSuit(value)
+            return True
+        except ValueError:
+            return False
+    
+    @staticmethod
+    def _is_valid_direction(value:str) -> bool:
+        """Internal method to check if the direction is valid."""
+        try:
+            if value in ("asc","desc"):
+                return True
+        except ValueError:
+            return False
+    
+    def _get_next_card(self) ->str:
+        """ Determine the next card in the set based on the current topCard
+        and the direction. If no topCard exists, determine whether the
+        next card should be an Ace (for descending sets) or a King (for ascending sets)."""
+        
+        if self.topCard is None:
+            if self.direction == "asc":
+                next_rank = 1 #initial Ace
+            elif self.direction == "desc":
+                next_rank = 13 #initial King
+            else:
+                raise ValueError("Invalid direction. Must be asc or desc")
+            
+            return f"{self.suit.value}{CardRank(next_rank).name}"
+        
+        current_rank = self.topCard.rank.value
+        current_suit = self.topCard.suit
+
+        #print(f"Current top card: {current_suit}{current_rank}")
+
+        if self.direction == "asc":
+            next_rank = current_rank + 1 if current_rank < 13 else None
+        elif self.direction == "desc":
+            next_rank = current_rank - 1 if current_rank > 1 else None
+        else:
+            raise ValueError("Invalid direction. Must be asc or desc")
+        
+        if next_rank is None:
+            return None
+        #print(f"Next top card: {current_suit}{CardRank(next_rank).name}")
+        #return next card name
+        return f"{current_suit.value}{CardRank(next_rank).name}"
+
+    def add_next_card(self,new_card:CardClass):
+        """
+        Add next card to the set undet topCard
+        """
+        
+        # get next card in line
+        next_card = self._get_next_card()
+
+        # compare new card and next card
+        if next_card is None:
+            print("No next card, this set is full!")
+        elif next_card == new_card.name[:-1]:
+            self.topCard = new_card
+        else:
+            print("Invalid card for this set!")
+        
